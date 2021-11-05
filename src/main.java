@@ -8,18 +8,7 @@ public class main {
 
 
     }
-    public static void readfromfile(String name){
-        try {
-            FileReader fr = new FileReader(name);
-            BufferedReader br = new BufferedReader(fr);
-            System.out.println(br.readLine());
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-        catch(IOException e ){
-            e.printStackTrace();
-        }
-    }
+
     public void addclass(int a){
         /*
         **
