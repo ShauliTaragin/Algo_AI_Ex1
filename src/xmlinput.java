@@ -11,6 +11,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 
 public class xmlinput {
     static getinput a = new getinput("input.txt");
@@ -19,44 +20,62 @@ public class xmlinput {
     public static void main(String[] args) {
         a.readfromfile();
         FILENAME= a.xml_path;
+        ArrayList<Pnode> variables  = new ArrayList<Pnode>(); // we hold an array list which will hold all the nodes we received from the xml
+        ArrayList<String> variables_names  = new ArrayList<String>();
         try {
-//creating a constructor of file class and parsing an XML file
             File file = new File(FILENAME);
-//an instance of factory that gives a document builder
             DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-//an instance of builder to parse the specified xml file
             DocumentBuilder db = dbf.newDocumentBuilder();
             Document doc = db.parse(file);
             doc.getDocumentElement().normalize();
             System.out.println("Root element: " + doc.getDocumentElement().getNodeName());
             NodeList nodeList = doc.getElementsByTagName("VARIABLE");
-// nodeList is not iterable, so we are using for loop
+            // nodeList is not iterable, so we are using for loop
+            // the main goal in this iteration is to init all the nodes
             for (int itr = 0; itr < nodeList.getLength(); itr++) {
                 Node node = nodeList.item(itr);
-                System.out.println("\nNode Name :" + node.getNodeName());
+                Pnode event = null;
                 if (node.getNodeType() == Node.ELEMENT_NODE)
                 {
                     Element eElement = (Element) node;
-                    System.out.println("variable: "+ eElement.getElementsByTagName("NAME").item(0).getTextContent());
+                    event = new Pnode(eElement.getElementsByTagName("NAME").item(0).getTextContent());//creating the pnode by name
                     int iterator = 0;
                     while(eElement.getElementsByTagName("OUTCOME").item(iterator)!=null){
-                        System.out.println("outcome "+ eElement.getElementsByTagName("OUTCOME").item(iterator).getTextContent());
+                        event.addvalues(eElement.getElementsByTagName("OUTCOME").item(iterator).getTextContent());//adding outcomes to our pnode
                         iterator++;
                     }
                 }
+                variables.add(event);
+                variables_names.add(event.getName());
             }
             //we reach the nodes again this time the definition
             NodeList nodeList2 = doc.getElementsByTagName("DEFINITION");
             for (int itr = 0; itr < nodeList2.getLength(); itr++) {
+                /*we will now create some helpful event objects
+                event2 -> the node we are working on
+                str   -> holds the name of the given node in each iteration
+                par   -> the node parent of event we found and want to add event as his child
+                */
+                Pnode event2 = null;
+                String str = "";
+                Pnode par = null;
                 Node node = nodeList2.item(itr);
-                System.out.println("\nNode Name :" + node.getNodeName());
-                if (node.getNodeType() == Node.ELEMENT_NODE)
-                {
+                if (node.getNodeType() == Node.ELEMENT_NODE) {
                     Element eElement = (Element) node;
-                    System.out.println("variable: "+ eElement.getElementsByTagName("FOR").item(0).getTextContent());
+                    event2 = variables.get(variables_names.indexOf(eElement.getElementsByTagName("FOR").item(0).getTextContent()));
+                    //System.out.println("the node is :  "  + event2);
+                    //code for adding given
                     int iterator = 0;
+                    while(eElement.getElementsByTagName("GIVEN").item(iterator)!=null){
+                        str=eElement.getElementsByTagName("GIVEN").item(iterator).getTextContent();
+                        par=variables.get(variables_names.indexOf(str));
+                        event2.addparent(par);
+                        par.addchild(event2);
+                        iterator++;
+                    }
+                    iterator = 0;
                     while(eElement.getElementsByTagName("TABLE").item(iterator)!=null){
-                        System.out.println("table "+ eElement.getElementsByTagName("TABLE").item(iterator).getTextContent());
+                        event2.addcpt(eElement.getElementsByTagName("TABLE").item(iterator).getTextContent());
                         iterator++;
                     }
                 }
@@ -65,6 +84,9 @@ public class xmlinput {
         catch (Exception e)
         {
             e.printStackTrace();
+        }
+        for (int i = 0; i <variables.size() ; i++) {
+            System.out.println(variables.get(i).toString());
         }
 
     }
