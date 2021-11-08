@@ -13,16 +13,18 @@ public class getinput {
         file_path = path;
         holds_info = new ArrayList<String>();
     }
-    public void readfromfile(String name){
-        name = this.file_path;
+    public void readfromfile(){
         try {
-            FileReader fr = new FileReader(name);
+            FileReader fr = new FileReader(this.file_path);
             BufferedReader br = new BufferedReader(fr);
-            xml_path=br.readLine();
-            while(!br.readLine().isEmpty()) {
-                holds_info.add(br.readLine());
+            xml_path = br.readLine();
+            String t = br.readLine();
+            while(t!=null) {
+                holds_info.add(t);
+                t= br.readLine();
             }
-        } catch (FileNotFoundException e) {
+        }
+        catch (FileNotFoundException e) {
             e.printStackTrace();
         }
         catch(IOException e ){
