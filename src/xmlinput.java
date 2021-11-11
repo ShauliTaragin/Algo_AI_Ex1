@@ -15,12 +15,16 @@ import java.util.ArrayList;
 
 public class xmlinput {
     static getinput a = new getinput("input.txt");
-    private static  String FILENAME = "alarm_net.xml";
+    private String FILENAME;
+    ArrayList<Pnode> variables; // we hold an array list which will hold all the nodes we received from the xml
 
-    public static void main(String[] args) {
+    public xmlinput(String FILENAME){
+        this.FILENAME = FILENAME;
+        ArrayList<Pnode> variables  = new ArrayList<Pnode>();
+    }
+    public ArrayList<Pnode> createNet(){
         a.readfromfile();
         FILENAME= a.xml_path;
-        ArrayList<Pnode> variables  = new ArrayList<Pnode>(); // we hold an array list which will hold all the nodes we received from the xml
         ArrayList<String> variables_names  = new ArrayList<String>();
         try {
             File file = new File(FILENAME);
@@ -53,8 +57,8 @@ public class xmlinput {
             for (int itr = 0; itr < nodeList2.getLength(); itr++) {
                 /*we will now create some helpful event objects
                 event2 -> the node we are working on
-                str   -> holds the name of the given node in each iteration
-                par   -> the node parent of event we found and want to add event as his child
+                str    -> holds the name of the given node in each iteration
+                par    -> the node parent of event we found and want to add event as his child
                 */
                 Pnode event2 = null;
                 String str = "";
@@ -88,7 +92,7 @@ public class xmlinput {
         for (int i = 0; i <variables.size() ; i++) {
             System.out.println(variables.get(i).toString());
         }
-
+        return variables;
     }
 
 }
