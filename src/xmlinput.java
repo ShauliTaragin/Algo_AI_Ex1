@@ -16,15 +16,15 @@ import java.util.ArrayList;
 public class xmlinput {
     static getinput a = new getinput("input.txt");
     private String FILENAME;
-    ArrayList<Pnode> variables; // we hold an array list which will hold all the nodes we received from the xml
 
     public xmlinput(String FILENAME){
         this.FILENAME = FILENAME;
-        ArrayList<Pnode> variables  = new ArrayList<Pnode>();
     }
+
     public ArrayList<Pnode> createNet(){
         a.readfromfile();
         FILENAME= a.xml_path;
+        ArrayList<Pnode> variables  = new ArrayList<Pnode>();// we hold an array list which will hold all the nodes we received from the xml
         ArrayList<String> variables_names  = new ArrayList<String>();
         try {
             File file = new File(FILENAME);
@@ -32,7 +32,6 @@ public class xmlinput {
             DocumentBuilder db = dbf.newDocumentBuilder();
             Document doc = db.parse(file);
             doc.getDocumentElement().normalize();
-            System.out.println("Root element: " + doc.getDocumentElement().getNodeName());
             NodeList nodeList = doc.getElementsByTagName("VARIABLE");
             // nodeList is not iterable, so we are using for loop
             // the main goal in this iteration is to init all the nodes
@@ -89,9 +88,9 @@ public class xmlinput {
         {
             e.printStackTrace();
         }
-        for (int i = 0; i <variables.size() ; i++) {
-            System.out.println(variables.get(i).toString());
-        }
+      //  for (int i = 0; i <variables.size() ; i++) {
+       //     System.out.println(variables.get(i).toString());
+      //  }
         return variables;
     }
 
