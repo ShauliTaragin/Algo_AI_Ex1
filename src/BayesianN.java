@@ -12,7 +12,7 @@ public class BayesianN {
         }
     }
 
-    public Pnode getNodeByName(String name) {
+    public Pnode getNodeByName(String name) { //A helper function to let us get any node in our bayesian net by its name
         int i=0;
         while(i < this.events.size()){
             if (this.events.get(i).getName().equals(name))

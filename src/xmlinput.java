@@ -14,7 +14,6 @@ import java.io.InputStream;
 import java.util.ArrayList;
 
 public class xmlinput {
-    static getinput a = new getinput("input.txt");
     private String FILENAME;
 
     public xmlinput(String FILENAME){
@@ -22,8 +21,6 @@ public class xmlinput {
     }
 
     public ArrayList<Pnode> createNet(){
-        a.readfromfile();
-        FILENAME= a.xml_path;
         ArrayList<Pnode> variables  = new ArrayList<Pnode>();// we hold an array list which will hold all the nodes we received from the xml
         ArrayList<String> variables_names  = new ArrayList<String>();
         try {
