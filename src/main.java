@@ -11,17 +11,22 @@ public class main {
         String s = a.xml_path;
         xmlinput input = new xmlinput(s);
         BayesianN BN = new BayesianN("a" ,input.createNet());
+        //next for is just checking
+        for (int i = 0; i <BN.events.get(4).cpt.table.size() ; i++) {
+            System.out.println(BN.events.get(4).cpt.table.get(i));
+        }
+
         ArrayList<Object> answers = new ArrayList<Object>();//creating an arraylist of our answers we will later export to the output file
         for (int i = 0; i < a.holds_q.size(); i++) { //now we are reading the questions we got from the input
             if(a.holds_q.get(i).charAt(0)!='P')//its a bayes ball question
                  answers.add(BayesBall(a.holds_q.get(i), BN));
-            System.out.println(answers);
+           // System.out.println(answers);
         }
 
 
     }
     /*
-    @param String quarry - we recieve the quarry we wish to ask the bayes ball aglorithm
+    @param String quarry - we recieve the quarry we wish to ask the bayes ball algorithm
            BayesianN BN - the bayesian net for which we are operating on.
     In this function we parse are given quarry until we reach the nodes we wish to send to our bayes ball algorithm.
     after we are able to gather the given nodes and the quarry nodes we send them into are main bayes ball function which

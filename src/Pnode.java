@@ -1,11 +1,12 @@
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class Pnode {
     private String name;
     private ArrayList<Pnode> parents;
     private ArrayList<Pnode> children;
     private ArrayList<String> values; //will hold the values for the event e.g true/false/maybe etc
-    private ArrayList<String> cpt ;//this will change to array list of type cpt
+    public CPT cpt ;//this will change to array list of type cpt
     /* @param the name of the event e.g A
     *   A simple constructor for bayes ball */
     public Pnode(String name){
@@ -13,7 +14,7 @@ public class Pnode {
         this.parents = new ArrayList<Pnode>();
         this.children = new ArrayList<Pnode>();
         this.values= new ArrayList<String>();
-        this.cpt= new ArrayList<String>();
+        this.cpt= new CPT();
     }
     //we will create functions to add to our arraylists
     public void addparent(Pnode Parent){
@@ -25,8 +26,25 @@ public class Pnode {
     public void addvalues(String value){
         this.values.add(value);
     }
-    public void addcpt(String probabilty){ //also will be changed
-        this.cpt.add(probabilty);
+//    public void addcpt(String probabilty){ //also will be changed
+//        this.cpt.add(probabilty);
+//    }
+
+    public void setcpt(String[] probabilities){
+        for (int i = 0; i < probabilities.length ; i++) {
+            HashMap<String,String> rows = new HashMap<>();
+            rows.put(this.name , this.values.get(i%values.size()));
+            int j=this.parents.size()-1;
+            int amount_of_values =values.size();
+            while ( j>=0 ){
+                Pnode curr = this.parents.get(j);
+                rows.put(curr.name, curr.values.get((i/amount_of_values % curr.values.size())));
+                j--;
+                amount_of_values*=curr.values.size();
+            }
+            rows.put("Pr" , probabilities[i]);
+            this.cpt.table.add(rows);
+        }
     }
     @Override
     public String toString(){
@@ -78,11 +96,4 @@ public class Pnode {
         this.values = values;
     }
 
-    public ArrayList<String> getCpt() {
-        return cpt;
-    }
-
-    public void setCpt(ArrayList<String> cpt) {
-        this.cpt = cpt;
-    }
 }
