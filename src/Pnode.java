@@ -65,6 +65,21 @@ public class Pnode {
             this.cpt.table.add(rows);
         }
     }
+
+    /**
+     * @param other receive another node and check if that node is my ancestor, e.g am I its descendant
+     * @return
+     */
+    public boolean isAncestor(Pnode other){
+        for (int i = 0; i < other.children.size(); i++) {
+            if (other.children.get(i).getName()==this.name)
+                return true;
+        }
+        for (int i = 0; i <other.children.size(); i++) {
+            return isAncestor(other.children.get(i));
+        }
+        return false;
+    }
     @Override
     public String toString(){
         String s = "the name of the event is: " + this.name + "\n";
