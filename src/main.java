@@ -25,8 +25,8 @@ public class main {
 
 
     }
-    /*
-    @param String quarry - we recieve the quarry we wish to ask the bayes ball algorithm
+    /**
+    @param quarry - we recieve the quarry we wish to ask the bayes ball algorithm
            BayesianN BN - the bayesian net for which we are operating on.
     In this function we parse are given quarry until we reach the nodes we wish to send to our bayes ball algorithm.
     after we are able to gather the given nodes and the quarry nodes we send them into are main bayes ball function which
@@ -59,7 +59,9 @@ public class main {
         if(ind==true)return "no";
         else return "yes";
     }
-    /*
+    /**
+    @param
+
      */
     public static Boolean BayesBall(ArrayList<String> given , BayesianN BN ,ArrayList<String> visited_and_given,Boolean parent, Pnode current , Pnode target){
         if(current.getName()==target.getName())return true;

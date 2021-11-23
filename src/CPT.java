@@ -6,7 +6,6 @@ import java.util.HashMap;
 public class CPT {
 
     public ArrayList<HashMap> table;//this will hold are values according to what is given to us.
-    public HashMap<String , String> rows;
     public int size_of_rows;
 
     /*
@@ -14,9 +13,18 @@ public class CPT {
      */
     public CPT(){
         table= new ArrayList<HashMap>();
-        rows = new HashMap<String,String>();
         this.size_of_rows=0;
     }
+      /*
+    A copy constructor for cpt recieveing another cpt
+     */
+      public CPT(CPT other){
+          this.size_of_rows=other.size_of_rows;
+          table= new ArrayList<HashMap>();
+          for (int i = 0; i <other.size_of_rows ; i++) {
+              table.add(other.table.get(i));
+          }
+      }
 
 //    public ArrayList<HashMap> getValues() {
 //        return values;

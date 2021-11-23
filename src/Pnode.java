@@ -5,17 +5,35 @@ public class Pnode {
     private String name;
     private ArrayList<Pnode> parents;
     private ArrayList<Pnode> children;
-    private ArrayList<String> values; //will hold the values for the event e.g true/false/maybe etc
+    private ArrayList<String> outcomes; //will hold the outcomes for the event e.g true/false/maybe etc
     public CPT cpt ;//this will change to array list of type cpt
+
     /* @param the name of the event e.g A
-    *   A simple constructor for bayes ball */
+    *   A simple constructor for probability node */
     public Pnode(String name){
         this.name = name;
         this.parents = new ArrayList<Pnode>();
         this.children = new ArrayList<Pnode>();
-        this.values= new ArrayList<String>();
+        this.outcomes= new ArrayList<String>();
         this.cpt= new CPT();
     }
+    public Pnode(Pnode other){
+        this.name = other.getName();
+        this.parents = new ArrayList<>();
+        for (int i = 0; i <other.parents.size() ; i++) {
+            this.addparent(other.parents.get(i));
+        }
+        this.children = new ArrayList<Pnode>();
+        for (int i = 0; i <other.children.size() ; i++) {
+            this.addchild(other.children.get(i));
+        }
+        this.outcomes= new ArrayList<String>();
+        for (int i = 0; i <other.outcomes.size() ; i++) {
+            this.addoutcomes(other.outcomes.get(i));
+        }
+        this.cpt= new CPT(other.cpt);
+    }
+
     //we will create functions to add to our arraylists
     public void addparent(Pnode Parent){
         this.parents.add(Parent);
@@ -23,24 +41,25 @@ public class Pnode {
     public void addchild(Pnode Child){
         this.children.add(Child);
     }
-    public void addvalues(String value){
-        this.values.add(value);
+    public void addoutcomes(String value){
+        this.outcomes.add(value);
     }
 //    public void addcpt(String probabilty){ //also will be changed
 //        this.cpt.add(probabilty);
 //    }
 
     public void setcpt(String[] probabilities){
+        this.cpt.size_of_rows= probabilities.length;
         for (int i = 0; i < probabilities.length ; i++) {
             HashMap<String,String> rows = new HashMap<>();
-            rows.put(this.name , this.values.get(i%values.size()));
+            rows.put(this.name , this.outcomes.get(i%outcomes.size()));
             int j=this.parents.size()-1;
-            int amount_of_values =values.size();
+            int amount_of_outcomes =outcomes.size();
             while ( j>=0 ){
                 Pnode curr = this.parents.get(j);
-                rows.put(curr.name, curr.values.get((i/amount_of_values % curr.values.size())));
+                rows.put(curr.name, curr.outcomes.get((i/amount_of_outcomes % curr.outcomes.size())));
                 j--;
-                amount_of_values*=curr.values.size();
+                amount_of_outcomes*=curr.outcomes.size();
             }
             rows.put("Pr" , probabilities[i]);
             this.cpt.table.add(rows);
@@ -59,7 +78,7 @@ public class Pnode {
             s+= this.children.get(i).getName() + " , ";
         }
         s+="\n";
-        s+= "the nodes values are:  " + this.values.toString() + "\n";
+        s+= "the nodes outcomes are:  " + this.outcomes.toString() + "\n";
         s+= "the nodes cpt is:  " + this.cpt.toString() + "\n";
         return s;
     }
@@ -88,12 +107,12 @@ public class Pnode {
         this.children = children;
     }
 
-    public ArrayList<String> getValues() {
-        return values;
+    public ArrayList<String> getoutcomes() {
+        return outcomes;
     }
 
-    public void setValues(ArrayList<String> values) {
-        this.values = values;
+    public void setoutcomes(ArrayList<String> outcomes) {
+        this.outcomes = outcomes;
     }
 
 }
