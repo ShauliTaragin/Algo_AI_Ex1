@@ -4,8 +4,9 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 
-public class main {
+public class Ex1 {
     public static void main(String[] args) {
+
         getinput a = new getinput("my_input.txt");
         a.readfromfile();
         String s = a.xml_path;
