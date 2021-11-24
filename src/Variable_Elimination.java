@@ -77,9 +77,25 @@ public class Variable_Elimination {
                     if(evidence.contains(curr.getName())){
                         //then remove the node from evidence and create it for bayesball
                         // remembering quarry looks like this-> B-E|J=T
+                        String enter_quarry_BB = Quarry_node.getName()+ "-" + curr.getName()+ "|";
+                        for (int j = 0; j <evidence.size(); j++) {
+                            if(evidence.get(j)!= curr.getName())
+                                enter_quarry_BB+= evidence.get(j) + "=" + evidence_values.get(j);
+                        }
+                        Factor curr_init_factor = new Factor(curr , evidence);
+                        if(main.BayesBall(enter_quarry_BB , this.Bn).equals("no")){
+                            factors.add(curr_init_factor);
+                        }
                     }
                     else{
-
+                        String enter_quarry_BB = Quarry_node.getName()+ "-" + curr.getName()+ "|";
+                        for (int j = 0; j <evidence.size(); j++) {
+                            enter_quarry_BB+= evidence.get(j) + "=" + evidence_values.get(j);
+                        }
+                        Factor curr_init_factor = new Factor(curr , evidence);
+                        if(main.BayesBall(enter_quarry_BB , this.Bn).equals("no")){
+                            factors.add(curr_init_factor);
+                        }
                     }
                 }
             }

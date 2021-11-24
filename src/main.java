@@ -12,8 +12,8 @@ public class main {
         xmlinput input = new xmlinput(s);
         BayesianN BN = new BayesianN("a" ,input.createNet());
         //next for is just checking
-        for (int i = 0; i <BN.events.get(4).cpt.table.size() ; i++) {
-            System.out.println(BN.events.get(4).cpt.table.get(i));
+        for (int i = 0; i <BN.events.size() ; i++) {
+            System.out.println(BN.events.get(i).cpt);
         }
 
         ArrayList<Object> answers = new ArrayList<Object>();//creating an arraylist of our answers we will later export to the output file

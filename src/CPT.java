@@ -11,21 +11,32 @@ public class CPT {
     /*
     A simple constructor for cpt
      */
-    public CPT(){
-        table= new ArrayList<HashMap>();
-        this.size_of_rows=0;
+    public CPT() {
+        table = new ArrayList<HashMap>();
+        this.size_of_rows = 0;
     }
-      /*
-    A copy constructor for cpt recieveing another cpt
-     */
-      public CPT(CPT other){
-          this.size_of_rows=other.size_of_rows;
-          table= new ArrayList<HashMap>();
-          for (int i = 0; i <other.size_of_rows ; i++) {
-              table.add(other.table.get(i));
-          }
-      }
 
+    /*
+  A copy constructor for cpt recieveing another cpt
+   */
+    public CPT(CPT other) {
+        this.size_of_rows = other.size_of_rows;
+        table = new ArrayList<HashMap>();
+        for (int i = 0; i < other.size_of_rows; i++) {
+            table.add(other.table.get(i));
+        }
+    }
+
+    @Override
+    public String toString() {
+        String ret = "";
+        for (int i = 0; i < this.table.size(); i++) {
+            ret += table.toString();
+            ret += "\n";
+        }
+        ret += "The number of rows we have is : " + this.size_of_rows;
+        return ret;
+    }
 //    public ArrayList<HashMap> getValues() {
 //        return values;
 //    }
