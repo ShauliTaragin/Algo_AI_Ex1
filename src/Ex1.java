@@ -3,6 +3,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class Ex1 {
     public static void main(String[] args) {
@@ -18,9 +19,16 @@ public class Ex1 {
         }
 
         ArrayList<Object> answers = new ArrayList<Object>();//creating an arraylist of our answers we will later export to the output file
+        Variable_Elimination ve;
+        double[] VE_Answer = new double[3];
         for (int i = 0; i < a.holds_q.size(); i++) { //now we are reading the questions we got from the input
             if(a.holds_q.get(i).charAt(0)!='P')//its a bayes ball question
                  answers.add(BayesBall(a.holds_q.get(i), BN));
+            else {
+                ve = new Variable_Elimination(BN, a.holds_q.get(i));
+                VE_Answer = ve.variable_elimination();//check this might be wrong
+                answers.add(Arrays.toString(VE_Answer));
+            }
         }
         System.out.println(answers);
     }
