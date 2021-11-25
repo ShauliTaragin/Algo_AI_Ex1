@@ -7,24 +7,22 @@ import java.util.ArrayList;
 public class Ex1 {
     public static void main(String[] args) {
 
-        getinput a = new getinput("my_input.txt");
+        getinput a = new getinput("input.txt");
         a.readfromfile();
         String s = a.xml_path;
         xmlinput input = new xmlinput(s);
         BayesianN BN = new BayesianN("a" ,input.createNet());
         //next for is just checking
         for (int i = 0; i <BN.events.size() ; i++) {
-            System.out.println(BN.events.get(i).cpt);
+          //  System.out.println(BN.events.get(i).cpt);
         }
 
         ArrayList<Object> answers = new ArrayList<Object>();//creating an arraylist of our answers we will later export to the output file
         for (int i = 0; i < a.holds_q.size(); i++) { //now we are reading the questions we got from the input
             if(a.holds_q.get(i).charAt(0)!='P')//its a bayes ball question
                  answers.add(BayesBall(a.holds_q.get(i), BN));
-           // System.out.println(answers);
         }
-
-
+        System.out.println(answers);
     }
     /**
     @param quarry - we recieve the quarry we wish to ask the bayes ball algorithm
@@ -70,8 +68,8 @@ public class Ex1 {
         if(parent){
             if(given.contains(current.getName())){
                 for (int i = 0; i < current.getParents().size(); i++) {
-                    if(!visited_and_given.contains(current.getName())) {
-                        visited_and_given.add(current.getName());
+                    visited_and_given.add(current.getName());
+                    if(!visited_and_given.contains(current.getParents().get(i).getName())) {
                         if(BayesBall(given, BN, visited_and_given, false, current.getParents().get(i), target))return true;
                     }
                 }

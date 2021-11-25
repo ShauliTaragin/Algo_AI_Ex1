@@ -31,7 +31,7 @@ public class CPT {
     public String toString() {
         String ret = "";
         for (int i = 0; i < this.table.size(); i++) {
-            ret += table.toString();
+            ret += table.get(i).toString();
             ret += "\n";
         }
         ret += "The number of rows we have is : " + this.size_of_rows;
