@@ -28,7 +28,7 @@ public class Variable_Elimination {
         String[] split_quarry_and_hidden = quarry.split(" ");// e.g-> [P(B=T|J=T,M=T),A-E]
         split_quarry_and_hidden[0] = split_quarry_and_hidden[0].replace("P(", "");//e.g-> [B=T|J=T,M=T),A-E]
         split_quarry_and_hidden[0] = split_quarry_and_hidden[0].replace(")", "");//e.g-> [B=T|J=T,M=T,A-E]
-        if (split_quarry_and_hidden[1].length() > 0) {
+        if (split_quarry_and_hidden.length>1 && split_quarry_and_hidden[1].length() > 0) {
             String[] order_of_hidden = split_quarry_and_hidden[1].split("-");//e.g-> [A,E]
             for (int i = 0; i < order_of_hidden.length; i++) {
                 this.order_join_eliminate.add(order_of_hidden[i]);

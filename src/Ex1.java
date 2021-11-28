@@ -12,11 +12,6 @@ public class Ex1 {
         String s = a.xml_path;
         xmlinput input = new xmlinput(s);
         BayesianN BN = new BayesianN("a" ,input.createNet());
-        //next for is just checking
-        for (int i = 0; i <BN.events.size() ; i++) {
-           //  System.out.println(BN.events.get(i).cpt);
-        }
-
         ArrayList<Object> answers = new ArrayList<Object>();//creating an arraylist of our answers we will later export to the output file
         Variable_Elimination ve;
         for (int i = 0; i < a.holds_q.size(); i++) { //now we are reading the questions we got from the input
@@ -107,12 +102,5 @@ public class Ex1 {
             }
         }
         return false;
-    }
-    public void addclass(int a){
-        /*
-        **
-        *
-        *
-         */
     }
 }

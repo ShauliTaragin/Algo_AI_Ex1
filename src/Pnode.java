@@ -71,12 +71,12 @@ public class Pnode {
      * @return
      */
     public boolean isAncestor(Pnode other){
-        for (int i = 0; i < other.children.size(); i++) {
-            if (other.children.get(i).getName()==this.name)
+        if (other.children.contains(this))
                 return true;
-        }
+        boolean flag = false;
         for (int i = 0; i <other.children.size(); i++) {
-            return isAncestor(other.children.get(i));
+            flag = isAncestor(other.children.get(i));
+            if (flag)return true;
         }
         return false;
     }
