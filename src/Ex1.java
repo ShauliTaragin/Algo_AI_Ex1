@@ -7,7 +7,7 @@ import java.util.Arrays;
 
 public class Ex1 {
     public static void main(String[] args) {
-        getinput a = new getinput("input.txt");
+        getinput a = new getinput("input2.txt");
         a.readfromfile();
         String s = a.xml_path;
         xmlinput input = new xmlinput(s);

@@ -39,7 +39,7 @@ public class Variable_Elimination {
         String[] split_quarry_and_evidence = split_quarry_and_hidden[0].split("\\|");//e.g-> [B=T,J=T,M=T]
         this.quarry_node = split_quarry_and_evidence[0]; //initiate quarry node
 
-        if (split_quarry_and_evidence[1].length() > 0) {
+        if (split_quarry_and_evidence.length>1 && split_quarry_and_evidence[1].length() > 0) {//checking only if we have evidence
             String[] input_evidence = split_quarry_and_evidence[1].split(",");
             for (int i = 0; i < input_evidence.length; i++) {
                 String[] input_evidence_value = input_evidence[i].split("=");
@@ -57,10 +57,14 @@ public class Variable_Elimination {
      * 2.if is not ancestor of any evidence
      * 3.if it is one of the ancestors we found in 1/2 the check if its independent to our quarry
      * The nodes which are not relevant will not enter the list of factors
+     * then we will check if we have our answer to our quarry right away, if so we return it.
+     * then we start "taking care of our hidden variables. we iterate over all our hidden factors by order and join and eliminate each one.
+     * if we finished eliminating all our hidden factors we join and eliminate all our quarry factors.
+     * When we finish that we will have one factor left. we normalize and return the correct value.
      */
     public String variable_elimination() {
         //first we kick out anyone who is not relevent(not an anccestor/is independent)
-        //on the anccestors we check on the quarry and evidence
+        //on the ancestors we check on the quarry and evidence
         //bayesball we send the quarry given the evidence
         String[] Q = this.quarry_node.split("=");
         Pnode Quarry_node = Bn.getNodeByName(Q[0]);
@@ -103,17 +107,21 @@ public class Variable_Elimination {
             }
         }
         this.factors.add(new Factor(Quarry_node, evidence_with_value));
-        for (int i = 0; i < this.evidence.size(); i++)
-            this.factors.add(new Factor(Bn.getNodeByName(this.evidence.get(i)), evidence_with_value));
+        for (int i = 0; i < this.evidence.size(); i++) {
+            Factor evidence_factor_to_add = new Factor(Bn.getNodeByName(this.evidence.get(i)), evidence_with_value);
+            if (evidence_factor_to_add.size_of_rows != 1)// if a factor becomes one valued, discard it.
+                this.factors.add(evidence_factor_to_add);
+        }
         //now we will check if we can reach the answer right away
-        Boolean right_away = false;
+        Boolean right_away = true;
         for (int i = 0; i < this.factors.size(); i++) {
             for (int j = 0; j < this.factors.get(i).size_of_rows; j++) {
                 HashMap<String, String> row = this.factors.get(i).table.get(j);
-                if (row.containsKey(Q[0]) && row.get(Q[0]).equals(Q[1])) {
+                if (row.containsKey(Q[0]) && row.get(Q[0]).equals(Q[1]) && row.size()==this.evidence.size()+1) {//3rd condition is if my row only contains evidence and quarry
                     for (int k = 0; k < this.evidence.size(); k++) {
-                        if (row.containsKey(this.evidence.get(k)) && row.get(this.evidence.get(k)).equals(this.evidence_values.get(k)))
+                        if (row.containsKey(this.evidence.get(k)) && row.get(this.evidence.get(k)).equals(this.evidence_values.get(k))) {
                             right_away = true;
+                        }
                         else {
                             right_away = false;
                             break;
@@ -135,6 +143,10 @@ public class Variable_Elimination {
             int iterator = 0;
             Factor a = new Factor();
             while (iterator < this.factors.size()) {
+                if (this.factors.get(iterator).size_of_rows == 1) {// if a factor becomes one valued, discard it.
+                    this.factors.remove(iterator);
+                    iterator = 0;
+                }
                 HashMap<String, String> first_row = this.factors.get(iterator).table.get(0);
                 if ((first_row.containsKey(hidden) && a.size_of_rows == 0)) {
                     a = this.factors.get(iterator++);
@@ -159,15 +171,15 @@ public class Variable_Elimination {
         }
         //once we finished all our hiddens we should join and eliminate out all our quarry factors left until we are left with one factor
         Factor a = new Factor();
-        int iterator =0;
-        while (this.factors.size()>1){
+        int iterator = 0;
+        while (this.factors.size() > 1) {
             HashMap<String, String> first_row = this.factors.get(iterator).table.get(0);
-            if (a.size_of_rows == 0) {//Q[0] is name of our quarry node
+            if (first_row.containsKey(Q[0]) && a.size_of_rows == 0) {//Q[0] is name of our quarry node
                 a = this.factors.get(iterator++);
                 continue;
             }
             //not sure about this or what should i be doing when im done with all the hidden factors
-            if (true) {
+            if (first_row.containsKey(Q[0])) {
                 Factor b = this.factors.get(iterator++);
                 join(a, b);
                 a = new Factor();
@@ -196,13 +208,22 @@ public class Variable_Elimination {
      * Now we remove all the factors for which we find that they contain a irrelevent node(which we found through bayesball)
      */
     public void remove_irrelevent_nodes() {
+        int[] list_of_factors_to_rmv_by_index = new int[this.factors.size()];
+        Arrays.fill(list_of_factors_to_rmv_by_index ,-1);
+        int counter_for_factors_removed = 0;
         for (int i = 0; i < this.factors.size(); i++) {
             for (int j = 0; j < this.factors.get(i).size_of_rows; j++) {
                 HashMap<String, String> row = this.factors.get(i).table.get(j);
                 for (int k = 0; k < not_relevant.size(); k++) {
-                    if (row.containsKey(not_relevant.get(i)))
-                        factors.remove(i);
+                    if (row.containsKey(not_relevant.get(k)))
+                        list_of_factors_to_rmv_by_index[i] = 1;
                 }
+            }
+        }
+        for (int i = 0; i <list_of_factors_to_rmv_by_index.length; i++) {
+            if (list_of_factors_to_rmv_by_index[i]!=-1) {
+                this.factors.remove(i-counter_for_factors_removed);
+                counter_for_factors_removed++;
             }
         }
     }
@@ -304,7 +325,7 @@ public class Variable_Elimination {
             String[] hold_q = this.quarry_node.split("=");
             if (a.table.get(i).get(hold_q[0]).equals(hold_q[1])) {
                 double the_value_we_return = Double.parseDouble(a.table.get(i).get("Pr"));
-                the_value_we_return /= added_probabilty ;
+                the_value_we_return /= added_probabilty;
                 String the_value_we_return_in_string = "" + the_value_we_return;
                 a.table.get(i).replace("Pr", the_value_we_return_in_string);
                 break;
