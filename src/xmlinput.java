@@ -41,7 +41,7 @@ public class xmlinput {
                     event = new Pnode(eElement.getElementsByTagName("NAME").item(0).getTextContent());//creating the pnode by name
                     int iterator = 0;
                     while(eElement.getElementsByTagName("OUTCOME").item(iterator)!=null){
-                        event.addvalues(eElement.getElementsByTagName("OUTCOME").item(iterator).getTextContent());//adding outcomes to our pnode
+                        event.addoutcomes(eElement.getElementsByTagName("OUTCOME").item(iterator).getTextContent());//adding outcomes to our pnode
                         iterator++;
                     }
                 }
@@ -63,7 +63,6 @@ public class xmlinput {
                 if (node.getNodeType() == Node.ELEMENT_NODE) {
                     Element eElement = (Element) node;
                     event2 = variables.get(variables_names.indexOf(eElement.getElementsByTagName("FOR").item(0).getTextContent()));
-                    //System.out.println("the node is :  "  + event2);
                     //code for adding given
                     int iterator = 0;
                     while(eElement.getElementsByTagName("GIVEN").item(iterator)!=null){
@@ -74,10 +73,12 @@ public class xmlinput {
                         iterator++;
                     }
                     iterator = 0;
+                    String table_before_cpt = "";
                     while(eElement.getElementsByTagName("TABLE").item(iterator)!=null){
-                        event2.addcpt(eElement.getElementsByTagName("TABLE").item(iterator).getTextContent());
+                        table_before_cpt+= (eElement.getElementsByTagName("TABLE").item(iterator++).getTextContent());
                         iterator++;
                     }
+                    event2.setcpt(table_before_cpt.split(" "));
                 }
             }
         }
@@ -85,9 +86,6 @@ public class xmlinput {
         {
             e.printStackTrace();
         }
-      //  for (int i = 0; i <variables.size() ; i++) {
-       //     System.out.println(variables.get(i).toString());
-      //  }
         return variables;
     }
 

@@ -1,4 +1,7 @@
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 
@@ -18,7 +21,7 @@ public class Variable_Elimination {
     public Variable_Elimination(BayesianN bayesian_net, String quarry) {
         //leave here room to initiate all the variables of our class.
 
-
+        this.Bn = bayesian_net;
         this.order_join_eliminate = new ArrayList<String>();
         this.numOfMul = 0;
         this.numOfAdd = 0;
@@ -37,7 +40,7 @@ public class Variable_Elimination {
         this.quarry_node = split_quarry_and_evidence[0]; //initiate quarry node
 
         if (split_quarry_and_evidence[1].length() > 0) {
-            String[] input_evidence = split_quarry_and_hidden[1].split(",");
+            String[] input_evidence = split_quarry_and_evidence[1].split(",");
             for (int i = 0; i < input_evidence.length; i++) {
                 String[] input_evidence_value = input_evidence[i].split("=");
                 this.evidence.add(input_evidence_value[0]);
@@ -55,7 +58,7 @@ public class Variable_Elimination {
      * 3.if it is one of the ancestors we found in 1/2 the check if its independent to our quarry
      * The nodes which are not relevant will not enter the list of factors
      */
-    public double[] variable_elimination() {
+    public String variable_elimination() {
         //first we kick out anyone who is not relevent(not an anccestor/is independent)
         //on the anccestors we check on the quarry and evidence
         //bayesball we send the quarry given the evidence
@@ -85,7 +88,11 @@ public class Variable_Elimination {
                 if (isRelevant) {//check if the one we found to be ancestor is dependent to our quarry given our evidence
                     String enter_quarry_BB = Quarry_node.getName() + "-" + curr.getName() + "|";
                     for (int j = 0; j < evidence.size(); j++) {
-                        enter_quarry_BB += evidence.get(j) + "=" + evidence_values.get(j);
+                        if (j < evidence.size() - 1)
+                            enter_quarry_BB += evidence.get(j) + "=" + evidence_values.get(j) + ",";
+                        else
+                            enter_quarry_BB += evidence.get(j) + "=" + evidence_values.get(j);
+
                     }
                     Factor curr_init_factor = new Factor(curr, evidence_with_value);
                     if (Ex1.BayesBall(enter_quarry_BB, this.Bn).equals("no")) {
@@ -113,10 +120,8 @@ public class Variable_Elimination {
                         }
                     }
                     if (right_away) {
-                        double[] answer_directly = new double[3];
-                        answer_directly[0] = Double.parseDouble(row.get("Pr"));
-                        answer_directly[1] = 0.0;
-                        answer_directly[2] = 0.0;
+                        String answer_directly = row.get("Pr");
+                        answer_directly += "," + this.numOfAdd + "," + this.numOfMul;
                         return answer_directly;
                     }
                 }
@@ -128,41 +133,62 @@ public class Variable_Elimination {
         while (this.order_join_eliminate.size() > 0) {// we will go with each hidden variable(by order) and join the factors which contain it.
             String hidden = this.order_join_eliminate.get(0);
             int iterator = 0;
+            Factor a = new Factor();
             while (iterator < this.factors.size()) {
-                Factor a = new Factor();
                 HashMap<String, String> first_row = this.factors.get(iterator).table.get(0);
-                if (first_row.containsKey(hidden) && a.size_of_rows == 0) {//might be bug here
+                if ((first_row.containsKey(hidden) && a.size_of_rows == 0)) {
                     a = this.factors.get(iterator++);
                     continue;
                 }
-                if (first_row.containsKey(hidden)) {//might be bug here
-                    Factor b = this.factors.get(iterator);
-                    join(a, b, hidden);
+                if (first_row.containsKey(hidden)) {
+                    Factor b = this.factors.get(iterator++);
+                    join(a, b);
+                    a = new Factor();
                     iterator = 0;
                     continue;
                 }
+                iterator++;
             }
-            for (int i = 0; i <this.factors.size(); i++) {
-                if(this.factors.get(i).table.get(0).containsKey(hidden))
-                    eliminate(this.factors.get(i) , hidden);
+            for (int i = 0; i < this.factors.size(); i++) {
+                if (this.factors.get(i).table.get(0).containsKey(hidden))
+                    eliminate(this.factors.get(i), hidden);
             }
             //if we finished the loop this means there is only one factor containing are hidden variable
             //then we should do eliminate
             this.order_join_eliminate.remove(0);
         }
+        //once we finished all our hiddens we should join and eliminate out all our quarry factors left until we are left with one factor
+        Factor a = new Factor();
+        int iterator =0;
+        while (this.factors.size()>1){
+            HashMap<String, String> first_row = this.factors.get(iterator).table.get(0);
+            if (a.size_of_rows == 0) {//Q[0] is name of our quarry node
+                a = this.factors.get(iterator++);
+                continue;
+            }
+            //not sure about this or what should i be doing when im done with all the hidden factors
+            if (true) {
+                Factor b = this.factors.get(iterator++);
+                join(a, b);
+                a = new Factor();
+                iterator = 0;
+                continue;
+            }
+            iterator++;
+        }
+
         Factor last_factor = this.factors.get(0);
         normalize(last_factor);
         double return_probability = 0;
         for (int i = 0; i < last_factor.size_of_rows; i++) {
-            if (last_factor.table.get(i).get(Q[0]).equals(Q[1])){
-                return_probability= Double.parseDouble(last_factor.table.get(i).get("Pr"));
+            if (last_factor.table.get(i).get(Q[0]).equals(Q[1])) {
+                return_probability = Double.parseDouble(last_factor.table.get(i).get("Pr"));
                 break;
             }
         }
-        double[] answer = new double[3];
-        answer[0]=return_probability;
-        answer[1]= this.numOfAdd;
-        answer[2]=this.numOfMul;
+        NumberFormat format_5_digits = new DecimalFormat("#0.00000");
+        String answer = format_5_digits.format(return_probability);
+        answer += "," + this.numOfAdd + "," + this.numOfMul;
         return answer;
     }
 
@@ -181,11 +207,11 @@ public class Variable_Elimination {
         }
     }
 
-    public void join(Factor a, Factor b, String hidden) {
+    public void join(Factor a, Factor b) {
         Factor c = new Factor();
         ArrayList<String> common_variables = new ArrayList<>();
         for (String key1 : a.table.get(0).keySet()) {
-            if (b.table.get(0).containsKey(key1))
+            if (b.table.get(0).containsKey(key1) && !key1.equals("Pr")) //only if they have the same key and that key is not the probability key
                 common_variables.add(key1);
         }
         for (int i = 0; i < a.size_of_rows; i++) {
@@ -207,7 +233,7 @@ public class Variable_Elimination {
                     //now add each value of both factors to new factors.
                     //for both factors i will only add to c the variables that are not there yet.
                     for (String key1 : row_a.keySet()) {
-                        if (!c.table.get(c.size_of_rows - 1).containsKey(key1))
+                        if (!c.table.get(c.size_of_rows - 1).containsKey(key1)) // adding all the new variables we got from the join but only if they are not there yet
                             c.table.get(c.size_of_rows - 1).put(key1, row_a.get(key1));
                     }
                     for (String key2 : row_b.keySet()) {
@@ -225,16 +251,19 @@ public class Variable_Elimination {
     }
 
     public void eliminate(Factor a, String hidden) {
-        ArrayList<Integer> to_delete = new ArrayList<>();
+        int[] to_delete = new int[a.size_of_rows];//similar to hash every row we will want to delete will be saved in the array with a 1. e.g row 2 to be deleted then -> to delete[2]=1
+        Arrays.fill(to_delete, -1);
+        int counter_for_rows_removed = 0;
         ArrayList<String> not_hidden = new ArrayList<>();
         for (String key : a.table.get(0).keySet()) {
             if (!key.equals(hidden))
                 not_hidden.add(key);//first adding the non hidden variables to my list because we will know which rows to add according to these variables.
         }
-        for (Integer i = 0; i < a.size_of_rows; i++) {
-            if (to_delete.contains(i)) continue;
+        not_hidden.remove("Pr"); // Pr will be in every row but values will always be different so we are not intersted in it.
+        for (int i = 0; i < a.size_of_rows; i++) {
+            if (to_delete[i] == 1) continue;
             HashMap<String, String> first_row = a.table.get(i);
-            for (Integer j = i + 1; j < a.size_of_rows; j++) {
+            for (int j = i + 1; j < a.size_of_rows; j++) {
                 HashMap<String, String> second_row = a.table.get(j);
                 boolean do_we_add = true;
                 for (int k = 0; k < not_hidden.size(); k++) {
@@ -248,34 +277,38 @@ public class Variable_Elimination {
                     double added_probabilty = Double.parseDouble(first_row.get("Pr")) + Double.parseDouble(second_row.get("Pr"));
                     String str_added_probabilty = "" + added_probabilty;
                     first_row.replace("Pr", str_added_probabilty);
-                    to_delete.add(j);
+                    to_delete[j] = 1;
                     this.numOfAdd++;
                 }
             }
             first_row.remove(hidden);//remove the hidden key since we finished eliminating it.
         }
         //now we remove all the to delete rows from our factor
-        for (int i = 0; i <to_delete.size() ; i++) {
-            a.table.remove(to_delete.get(i));
+        for (int i = 0; i < to_delete.length; i++) {
+            if (to_delete[i] == 1) {
+                a.table.remove(i - counter_for_rows_removed);
+                a.size_of_rows--;
+                counter_for_rows_removed++;
+            }
         }
     }
-    public void normalize(Factor a){
-        double added_probabilty =0;
+
+    public void normalize(Factor a) {
+        double added_probabilty = Double.parseDouble(a.table.get(0).get("Pr"));
         //first for loop is to get the sum of all variables in our factor
-        for (int i = 0; i <a.size_of_rows ; i++) {
+        for (int i = 1; i < a.size_of_rows; i++) {
             added_probabilty += Double.parseDouble(a.table.get(i).get("Pr"));
             this.numOfAdd++;
         }
-        for (int i = 0; i <a.size_of_rows ; i++) {
+        for (int i = 0; i < a.size_of_rows; i++) {
             String[] hold_q = this.quarry_node.split("=");
-            if (a.table.get(i).get(hold_q[0]).equals(hold_q[1])){
-                double the_value_we_return = Double.parseDouble(a.table.get(i).get(hold_q[0]));
-                the_value_we_return = added_probabilty/the_value_we_return;
-                String the_value_we_return_in_string = "" +the_value_we_return;
-                a.table.get(i).replace(hold_q[0], the_value_we_return_in_string);
+            if (a.table.get(i).get(hold_q[0]).equals(hold_q[1])) {
+                double the_value_we_return = Double.parseDouble(a.table.get(i).get("Pr"));
+                the_value_we_return /= added_probabilty ;
+                String the_value_we_return_in_string = "" + the_value_we_return;
+                a.table.get(i).replace("Pr", the_value_we_return_in_string);
                 break;
             }
         }
-        this.numOfAdd--;
     }
 }

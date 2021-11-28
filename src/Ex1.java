@@ -7,7 +7,6 @@ import java.util.Arrays;
 
 public class Ex1 {
     public static void main(String[] args) {
-
         getinput a = new getinput("input.txt");
         a.readfromfile();
         String s = a.xml_path;
@@ -15,19 +14,18 @@ public class Ex1 {
         BayesianN BN = new BayesianN("a" ,input.createNet());
         //next for is just checking
         for (int i = 0; i <BN.events.size() ; i++) {
-          //  System.out.println(BN.events.get(i).cpt);
+           //  System.out.println(BN.events.get(i).cpt);
         }
 
         ArrayList<Object> answers = new ArrayList<Object>();//creating an arraylist of our answers we will later export to the output file
         Variable_Elimination ve;
-        double[] VE_Answer = new double[3];
         for (int i = 0; i < a.holds_q.size(); i++) { //now we are reading the questions we got from the input
             if(a.holds_q.get(i).charAt(0)!='P')//its a bayes ball question
                  answers.add(BayesBall(a.holds_q.get(i), BN));
             else {
                 ve = new Variable_Elimination(BN, a.holds_q.get(i));
-                VE_Answer = ve.variable_elimination();//check this might be wrong
-                answers.add(Arrays.toString(VE_Answer));
+                String VE_Answer = ve.variable_elimination();
+                answers.add(VE_Answer);
             }
         }
         System.out.println(answers);

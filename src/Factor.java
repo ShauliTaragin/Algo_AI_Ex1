@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 
 public class Factor implements Comparable<Factor> {
@@ -20,6 +21,10 @@ public class Factor implements Comparable<Factor> {
         id = event.getName();
         this.size_of_rows = event.cpt.size_of_rows;
         table = new ArrayList<HashMap<String, String>>();
+        int[] rows_to_remove = new int[this.size_of_rows+1];//similar to hash
+        // every row we will want to delete will be saved in the array with a 1. e.g row 2 to be deleted then ->rows_to_remove[2]=1
+        Arrays.fill(rows_to_remove,-1);
+        int counter_for_rows_removed = 0;
         for (int i = 0; i < event.cpt.size_of_rows; i++) {
             this.table.add(event.cpt.table.get(i));
         }
@@ -28,10 +33,16 @@ public class Factor implements Comparable<Factor> {
                 HashMap row = event.cpt.table.get(i);
                 String[] quarry = givens.get(j).split("=");
                 if (row.containsKey(quarry[0]) && !row.get(quarry[0]).equals(quarry[1])) {
-                    this.table.remove(i);
-                    this.size_of_rows--;
+                    rows_to_remove[i]=1;
                     break;
                 }
+            }
+        }
+        for (int i = 0; i <rows_to_remove.length; i++) {
+            if (rows_to_remove[i]!=-1) {
+                this.table.remove(i-counter_for_rows_removed);
+                counter_for_rows_removed++;
+                this.size_of_rows--;
             }
         }
     }
