@@ -8,7 +8,8 @@ public class Pnode {
     private ArrayList<String> outcomes; //will hold the outcomes for the event e.g true/false/maybe etc
     public CPT cpt ;//this will change to array list of type cpt
 
-    /* @param the name of the event e.g A
+    /**
+     * @param name-> the name of the event e.g A
     *   A simple constructor for probability node */
     public Pnode(String name){
         this.name = name;
@@ -17,6 +18,11 @@ public class Pnode {
         this.outcomes= new ArrayList<String>();
         this.cpt= new CPT();
     }
+
+    /**
+     * A copy constructor
+     * @param other -> Receiving another probability node and creating our node from it
+     */
     public Pnode(Pnode other){
         this.name = other.getName();
         this.parents = new ArrayList<>();
@@ -41,17 +47,22 @@ public class Pnode {
     public void addchild(Pnode Child){
         this.children.add(Child);
     }
+
+
     public void addoutcomes(String value){
         this.outcomes.add(value);
     }
-//    public void addcpt(String probabilty){ //also will be changed
-//        this.cpt.add(probabilty);
-//    }
 
+    /**
+     * The way we init our cpt.
+     * @param probabilities -> From the xml input we receive the values for the cpt table. We pass those values as
+     *                      A string into our function each index is 1 row of our cpr containing a probability.
+     *                      i.e probabilities= ["0.8","0.66"]. then we will have 2 rows in our cpt.
+     */
     public void setcpt(String[] probabilities){
         this.cpt.size_of_rows= probabilities.length;
         for (int i = 0; i < probabilities.length ; i++) {
-            HashMap<String,String> rows = new HashMap<>();
+            HashMap<String,String> rows = new HashMap<String,String>();
             rows.put(this.name , this.outcomes.get(i%outcomes.size()));
             int j=this.parents.size()-1;
             int amount_of_outcomes =outcomes.size();
@@ -67,8 +78,9 @@ public class Pnode {
     }
 
     /**
-     * @param other receive another node and check if that node is my ancestor, e.g am I its descendant
-     * @return
+     * @param other -> receive another node and check if that node is my ancestor, e.g am I its descendant
+     * @return true = other node is this nodes ancestor
+                false = other node is *not* this nodes ancestor
      */
     public boolean isAncestor(Pnode other){
         if (other.children.contains(this))
@@ -98,7 +110,7 @@ public class Pnode {
         s+= "the nodes cpt is:  " + this.cpt.toString() + "\n";
         return s;
     }
-
+    //getters and setters
     public String getName() {
         return name;
     }

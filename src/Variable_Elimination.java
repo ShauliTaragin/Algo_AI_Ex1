@@ -2,14 +2,12 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 
 public class Variable_Elimination {
 
     public BayesianN Bn;
     private ArrayList<Factor> factors;
-    private ArrayList<String> JoinOrder;
     private ArrayList<String> order_join_eliminate; //also holds all the hidden nodes by name
     private ArrayList<String> evidence; //holds all our evidence
     private ArrayList<String> evidence_values; // holds the values of our evidence each index i hold value for evidence in index i
@@ -18,9 +16,15 @@ public class Variable_Elimination {
     public int numOfMul;// Counting how many multiplication occur during the algorithm
     public int numOfAdd;// Counting how many adding operations occur during the algorithm
 
+    /**
+     * Our constructor for Variable_Elimination.
+     * @param bayesian_net->Receiving our bayesian net
+     * @param quarry-> the quarry we wish to get answers for. note- we receive the quarry before parsing
+     *       First we parse our quarry into organized lists holding our quarry, evidence, hidden and there values(if needed)
+     *       once we have all are lists ready we can start the actual VE.
+     *
+     */
     public Variable_Elimination(BayesianN bayesian_net, String quarry) {
-        //leave here room to initiate all the variables of our class.
-
         this.Bn = bayesian_net;
         this.order_join_eliminate = new ArrayList<String>();
         this.numOfMul = 0;
@@ -117,9 +121,9 @@ public class Variable_Elimination {
         for (int i = 0; i < this.factors.size(); i++) {
             for (int j = 0; j < this.factors.get(i).size_of_rows; j++) {
                 HashMap<String, String> row = this.factors.get(i).table.get(j);
-                if (row.containsKey(Q[0]) && row.get(Q[0]).equals(Q[1]) && row.size()==this.evidence.size()+1) {//3rd condition is if my row only contains evidence and quarry
+                if (row.containsKey(Q[0]) && row.get(Q[0]).equals(Q[1]) ) {
                     for (int k = 0; k < this.evidence.size(); k++) {
-                        if (row.containsKey(this.evidence.get(k)) && row.get(this.evidence.get(k)).equals(this.evidence_values.get(k))) {
+                        if (row.containsKey(this.evidence.get(k)) && row.get(this.evidence.get(k)).equals(this.evidence_values.get(k)) && row.size()==this.evidence.size()+1) {//3rd condition is if my row only contains evidence and quarry
                             right_away = true;
                         }
                         else {
@@ -127,7 +131,7 @@ public class Variable_Elimination {
                             break;
                         }
                     }
-                    if (right_away) {
+                    if (right_away) {//if the return value is a box that we found we return it rigth away.
                         String answer_directly = row.get("Pr");
                         answer_directly += "," + this.numOfAdd + "," + this.numOfMul;
                         return answer_directly;
@@ -178,7 +182,6 @@ public class Variable_Elimination {
                 a = this.factors.get(iterator++);
                 continue;
             }
-            //not sure about this or what should i be doing when im done with all the hidden factors
             if (first_row.containsKey(Q[0])) {
                 Factor b = this.factors.get(iterator++);
                 join(a, b);
@@ -188,7 +191,8 @@ public class Variable_Elimination {
             }
             iterator++;
         }
-
+        //at this point we a are left with one factor therefore we normalize and get the correct value in our factor
+        // for which we asked the quarry one.
         Factor last_factor = this.factors.get(0);
         normalize(last_factor);
         double return_probability = 0;
@@ -205,7 +209,7 @@ public class Variable_Elimination {
     }
 
     /**
-     * Now we remove all the factors for which we find that they contain a irrelevent node(which we found through bayesball)
+     * Now we remove all the factors for which we find that they contain a irrelevant node(which we found through bayesball because it is independent to quarry and evidence)
      */
     public void remove_irrelevent_nodes() {
         int[] list_of_factors_to_rmv_by_index = new int[this.factors.size()];
@@ -228,6 +232,18 @@ public class Variable_Elimination {
         }
     }
 
+    /**
+     * The joining two factors function.
+     * @param a -> receiving 2 different factors
+     * @param b
+     * We start by creating a new factor c which will be the joining result of the 2 factors we received.
+     * we first find all the common variables of a and b (because there can be a complicated join of a few variables)
+     * Then we iterate over a and b's rows and our common variables, if we find rows for which the outcome for all common variables are the same
+     *      we will do join there.
+     * Once we find which rows we join, we multiply their probabilities and create a new row in c with their joint probability.
+     *      and add to that same row in c both a and b's variables as keys and their outcomes as values.
+     * Finally we remove a and b from our factors list and add c. and resort the factors list.
+     */
     public void join(Factor a, Factor b) {
         Factor c = new Factor();
         ArrayList<String> common_variables = new ArrayList<>();
@@ -271,6 +287,18 @@ public class Variable_Elimination {
         //at the end of join we need remove a and b add c and to sort factors again.
     }
 
+    /**
+     * The eliminate function
+     * @param a -> receive the factor for which we wish to eliminate
+     * @param hidden -> The hidden node we wish to eliminate out
+     * Since we can't delete rows during running time we create an array for which every row we find that we need to remove
+     *               we mark that index in our array with a 1. At the end of the function every index which is marked by a 1 we remove
+     *               I used this method in different functions and classes through out this project.
+     * Then we iterate over a's rows(comparing each 2 different rows) and our not hidden variables, if we find rows for which the outcome
+     *              for all not hidden variables are the same then we will eliminate there.
+     * Once we find which rows we eliminate(row i and j), we add their probabilities and put that probability in the first row(the i row)
+     *      and add to the to delete array the j row in order to delete it. we will not iterate over that row we marked to delete again.
+     */
     public void eliminate(Factor a, String hidden) {
         int[] to_delete = new int[a.size_of_rows];//similar to hash every row we will want to delete will be saved in the array with a 1. e.g row 2 to be deleted then -> to delete[2]=1
         Arrays.fill(to_delete, -1);
@@ -314,6 +342,11 @@ public class Variable_Elimination {
         }
     }
 
+    /**
+     * Function to normalize our factor before we return it.
+     * @param a we recieve the factor for which we wish to normalize.
+     *   This factor is already ready to return meaning all thats left is to find the right row and divide that row by sum of all rows
+     */
     public void normalize(Factor a) {
         double added_probabilty = Double.parseDouble(a.table.get(0).get("Pr"));
         //first for loop is to get the sum of all variables in our factor

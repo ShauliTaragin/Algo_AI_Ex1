@@ -30,7 +30,7 @@ public class Factor implements Comparable<Factor> {
         }
         for (int i = 0; i < event.cpt.size_of_rows; i++) {
             for (int j = 0; j < givens.size(); j++) {
-                HashMap row = event.cpt.table.get(i);
+                HashMap<String,String> row = event.cpt.table.get(i);
                 String[] quarry = givens.get(j).split("=");
                 if (row.containsKey(quarry[0]) && !row.get(quarry[0]).equals(quarry[1])) {
                     rows_to_remove[i]=1;
@@ -82,8 +82,13 @@ public class Factor implements Comparable<Factor> {
         }
         return asciiV;
     }
+
+    /**
+     * Adds a new row to our factor
+     * @param probability -> It does so by creating the row with the key "Pr" and the value probability of the event we wish to add
+     */
     public void add_row(String probability){
-        HashMap<String,String> new_row = new HashMap<>();
+        HashMap<String,String> new_row = new HashMap<String,String>();
         new_row.put("Pr" , probability);
         this.table.add(new_row);
         this.size_of_rows++;
@@ -110,5 +115,4 @@ public class Factor implements Comparable<Factor> {
                 return 1; //arbitrary because they have the same ascii value
         }
     }
-    //function for eliminate will be in factor because in the same factor we are combining two rows of same factor
 }

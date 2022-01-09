@@ -1,18 +1,14 @@
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 public class Ex1 {
     public static void main(String[] args) {
-        getinput a = new getinput("input2.txt");
+        getinput a = new getinput("input.txt");
         a.readfromfile();
         String s = a.xml_path;
         xmlinput input = new xmlinput(s);
         BayesianN BN = new BayesianN("a" ,input.createNet());
-        ArrayList<Object> answers = new ArrayList<Object>();//creating an arraylist of our answers we will later export to the output file
+        ArrayList<String> answers = new ArrayList<String>();//creating an arraylist of our answers we will later export to the output file
         Variable_Elimination ve;
         for (int i = 0; i < a.holds_q.size(); i++) { //now we are reading the questions we got from the input
             if(a.holds_q.get(i).charAt(0)!='P')//its a bayes ball question
@@ -23,7 +19,25 @@ public class Ex1 {
                 answers.add(VE_Answer);
             }
         }
-        System.out.println(answers);
+        writeToFile(answers);
+    }
+    /**
+     * Writes the answers of the algorithm to a txt file
+     * @param answers represents the result of the algorithm.
+     *  Contains: for bayes ball yes or no
+     *            for variable elimination the probability of a given query, amount of adds and amount of multiplication.
+     *  creates output.txt represents which contains the answers.
+     */
+    public static void writeToFile(ArrayList<String> answers){
+        try {
+            FileWriter myWriter = new FileWriter("output.txt");
+            for (int i = 0; i <answers.size() ; i++) {
+                myWriter.write(answers.get(i)+"\n");
+            }
+            myWriter.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
     /**
     @param quarry - we recieve the quarry we wish to ask the bayes ball algorithm
@@ -59,9 +73,18 @@ public class Ex1 {
         if(ind==true)return "no";
         else return "yes";
     }
-    /**
-    @param
 
+    /**
+     *
+     * @param given -> an array list of our givens
+     * @param BN -> our bayesian network for which we wish to run bayes ball on
+     * @param visited_and_given -> this will serve as our "memory". we save all our nodes which we visted and they are given
+     *                          this way we will know when to stop our recursion
+     * @param parent-> A flag which tells us whether we came from our parent or from our child.
+     * @param current->the current node we are on in the recursion process
+     * @param target -> The target node we wish to know if we are independent to or not
+     * @return true = dependent
+     *         false = independent
      */
     public static Boolean BayesBall(ArrayList<String> given , BayesianN BN ,ArrayList<String> visited_and_given,Boolean parent, Pnode current , Pnode target){
         if(current.getName()==target.getName())return true;
